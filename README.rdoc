@@ -1,0 +1,108 @@
+= Shibbolite
+
+Are you running Rails apps in a Shibboleth environment? Do you want to use all those sweet Shibboleth provided attributes for super simple access control? Shibbolite is the gem for you.
+
+== Caveats
+So far Shibbolite has been tested in one environment (mine). That is:
+
+* Apache 2.2
+* Shibboleth NativeSP 2.5 (older versions will not work due to URL redirect options not existing before this)
+* Phusion Passenger
+* Rails 4.0.* (older won't work)
+
+Shibbolite should work fine in any environment that provides the NativeSP attributes as environment variables. As of this writing that includes all versions of Apache by default, and that's pretty much it. Some quick googling tells me that Nginx support can be enabled with FastCGI, and possibly Mongrel as well, but it looks like this will provide the attributes as request headers, which will not work out of the box.
+ 
+== Install
+=== Before you start...
+Shibbolite expects that you already
+1. Have root set to something
+2. Created a User model at some point
+
+=== OK let's go
+In your Gemfile
+  gem 'shibbolite'
+Then run bundle to install it. Now run the handy generator
+  rails generate shibbolite:install
+...which will copy shibbolite_config.rb to your app's initializer folder. Take a look over the various options. You'll have to add your SP's attributes to the configuration, as well as specify the name of your user class if it isn't "User". You can also configure the list of valid group types you can assign to your users.
+
+If your SP handler locations are configured differently from the common defaults you'll have to specify those as well. See your SP's /Status handler more information, as well as the {Shibboleth documentation}[https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPSessions].
+
+Now generate the migration
+  rails generate shibbolite:migration
+This will create a migration for your User model that adds all of the Shibbolith attributes. Take a look at it then run
+  rake db:migrate
+
+Go to your User model and add
+  include Shibbolite::User
+
+Go to your ApplicationController and add
+  include Shibbolite::Filters
+
+Restart your application
+
+== Usage
+Shibbolite::User adds some validations as well as .find_user, which returns the user that has the supplied :primary_user_id
+
+Shibbolite::Filters gives you a gaggle of before filters to enable access control and a handful of helpers for views. Below are some examples, see the source for a complete list.
+
+=== Filters
+  before_action :require_login
+
+In your ApplicationController will require that users have a valid Shibboleth session before they can launch any action
+
+  before_action { |c| c.require_group :admin }
+
+will require that the user belong to the admin group
+
+  before_action { |c| c.require_group :admin, :user }
+
+will allow anyone who has the admin or the user group
+
+  before_action { |c| c.require_group_or_id :admin, some_user.id }
+
+is useful for things like profile pages that are accessible to both an owner and anyone in the admin group
+
+  before_action :use_attributes_if_available, only: :public
+
+will attempt to load a Shibboleth session if one is available but do nothing otherwise. Use this if you have a public page but still want to make use of attributes for users that have logged in.
+
+=== Helpers
+These helpers will be available to views of any controllers that include Shibbolite::Filters. See the source for a complete list.
+
+  current_user
+
+will return the User object of the Shibboleth authenticated user or nil if no one is authenticated, or the user isn't registered in the database. NOTE: current_user can still return nil after the user authenticates if one of the above filters isn't used before the controller action.
+
+Since current_user relies on a database lookup, you'll have to register (ie persist) your users before they can interact with most of the features of Shibbolite. How you want to handle user registration is left up to you.
+
+  logged_in?
+
+checks to see that a username is set in the session
+
+  user_in_group? (:admin)
+
+will return true if the current user has the admin group
+
+  
+
+=== Actions
+A couple of actions are available from Shibbolite::ShibbolethController
+
+  shibbolite.login_path #=> '/shibbolite/login'
+
+will attempt to load a Shibboleth session, or redirect to the Shibbolite.session_initiator for authentication if there is none. After authentication the user is brought back to the root_path.
+
+  shibbolite.logout_path #=> 'shibbolite/logout
+
+likewise redirects the client to the Shibbolite.logout_initiator
+ 
+== Contribute
+1. Fork the repository
+2. Make sure the tests pass
+3. Write a test for your change and make it pass
+4. Push the changes to your Fork
+5. Submit a pull request
+
+== License
+
+Shibbolite is released under the MIT License

@@ -1,0 +1,35 @@
+<h1>Home</h1>
+
+<h1>Testing helper methods</h1>
+
+<% if logged_in? %>
+  <p>User is logged in</p>
+<% end %>
+
+<% if anonymous_user? %>
+  <p>User is anonymous (not signed in to SSO)</p>
+<% end %>
+
+<% if guest_user? %>
+  <p>User is a guest (signed in to SSO but not registered)</p>
+<% end %>
+
+<% if registered_user? %>
+  <p>User is registered with application</p>
+<% end %>
+
+<% unless current_user.nil? %>
+  <p>User is in <%= current_user.group %> group</p>
+<% end %>
+
+<p>
+  <%= link_to 'Users only',  controller: :static, action: :user_resource %>
+  <%= link_to 'Admins only', controller: :static, action: :admin_resource %>
+</p>
+
+<p>
+  <%= link_to 'Login', shibbolite.login_path %>
+  <%= link_to 'Logout', shibbolite.logout_path %>
+</p>
+
+

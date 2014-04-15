@@ -1,0 +1,5 @@
+<h1>User Resource</h1>
+
+<p><%= @user_data %></p>
+
+<p><%= @admin_data if user_in_group?(:admin) %></p>
