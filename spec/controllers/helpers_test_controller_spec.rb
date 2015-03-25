@@ -38,7 +38,7 @@ describe HelpersTestController do
       it 'is false' do
         session[Shibbolite.pid] = nil
         get :_logged_in?
-        expect(assigns(:logged_in)).to be_false
+        expect(assigns(:logged_in)).to be_falsey
       end
     end
 
@@ -46,7 +46,7 @@ describe HelpersTestController do
       it 'is true' do
         session[Shibbolite.pid] = 'SSO authenticated'
         get :_logged_in?
-        expect(assigns(:logged_in)).to be_true
+        expect(assigns(:logged_in)).to be_truthy
       end
     end
   end
@@ -57,7 +57,7 @@ describe HelpersTestController do
       it 'is true' do
         session[Shibbolite.pid] = nil
         get :_anonymous_user?
-        expect(assigns(:anonymous)).to be_true
+        expect(assigns(:anonymous)).to be_truthy
       end
     end
 
@@ -65,7 +65,7 @@ describe HelpersTestController do
       it 'is false' do
         session[Shibbolite.pid] = 'SSO authenticated'
         get :_anonymous_user?
-        expect(assigns(:anonymous)).to be_false
+        expect(assigns(:anonymous)).to be_falsey
       end
     end
   end
@@ -77,7 +77,7 @@ describe HelpersTestController do
         session[Shibbolite.pid] = 'SSO authenticated'
         allow(subject).to receive(:current_user).and_return(nil)
         get :_guest_user?
-        expect(assigns(:guest)).to be_true
+        expect(assigns(:guest)).to be_truthy
       end
     end
 
@@ -86,7 +86,7 @@ describe HelpersTestController do
         session[Shibbolite.pid] = nil
         allow(subject).to receive(:current_user).and_return(nil)
         get :_guest_user?
-        expect(assigns(:guest)).to be_false
+        expect(assigns(:guest)).to be_falsey
       end
     end
   end
@@ -97,7 +97,7 @@ describe HelpersTestController do
       it 'is true' do
         allow(subject).to receive(:current_user).and_return('A valid user')
         get :_registered_user?
-        expect(assigns(:registered)).to be_true
+        expect(assigns(:registered)).to be_truthy
       end
     end
 
@@ -105,7 +105,7 @@ describe HelpersTestController do
       it 'is false' do
         allow(subject).to receive(:current_user).and_return(nil)
         get :_registered_user?
-        expect(assigns(:registered)).to be_false
+        expect(assigns(:registered)).to be_falsey
       end
     end
   end
@@ -118,12 +118,12 @@ describe HelpersTestController do
 
     it 'is true when user is in group' do
       get :_user_in_group?, group: 'jedi'
-      expect(assigns(:result)).to be_true
+      expect(assigns(:result)).to be_truthy
     end
 
     it 'is false when user is not in group' do
       get :_user_in_group?, group: 'sith'
-      expect(assigns(:result)).to be_false
+      expect(assigns(:result)).to be_falsey
     end
   end
 
@@ -135,12 +135,12 @@ describe HelpersTestController do
 
     it 'is true when user has the id' do
       get :_user_has_id?, id: '17'
-      expect(assigns(:result)).to be_true
+      expect(assigns(:result)).to be_truthy
     end
 
     it 'is false when user does not have the id' do
       get :_user_has_id?, id: '23'
-      expect(assigns(:result)).to be_false
+      expect(assigns(:result)).to be_falsey
     end
   end
 end
