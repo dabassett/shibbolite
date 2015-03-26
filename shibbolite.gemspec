@@ -18,9 +18,9 @@ Gem::Specification.new do |s|
   s.add_dependency "rails", '~> 4'
 
   s.add_development_dependency 'sqlite3', '~> 1.3'
-  s.add_development_dependency 'rspec-rails', '~> 2.14'
-  s.add_development_dependency 'factory_girl_rails', '~> 4.4'
-  s.add_development_dependency 'guard-rspec', '~> 4.2'
-  s.add_development_dependency 'fuubar', '~> 1.3'
-  s.add_development_dependency 'database_cleaner', '~> 1.2'
+  s.add_development_dependency 'rspec-rails', '~> 3.2'
+  s.add_development_dependency 'factory_girl_rails', '~> 4.5'
+  s.add_development_dependency 'guard-rspec', '~> 4.5'
+  s.add_development_dependency 'fuubar', '~> 2.0'
+  s.add_development_dependency 'database_cleaner', '~> 1.4'
 end
