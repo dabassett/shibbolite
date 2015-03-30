@@ -15,14 +15,20 @@ describe FiltersTestController do
         get :_require_login
         expect(response).to render_template(:dummy)
       end
-
     end
 
     context 'when not logged in' do
+      before { allow(subject).to receive(:logged_in?).and_return(false) }
+
       it 'redirects' do
-        allow(subject).to receive(:logged_in?).and_return(false)
         get :_require_login
         expect(response).to redirect_to('/shibbolite/login')
+      end
+
+      # see feature spec for complete test
+      it 'responds to ajax requests' do
+        xhr :get, :_require_login
+        expect(response.body).to include('window.location')
       end
     end
   end

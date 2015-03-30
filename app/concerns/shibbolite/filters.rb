@@ -6,21 +6,21 @@ module Shibbolite
     include Shibbolite::Helpers
 
     def require_login
-      redirect_to login_or_access_denied unless logged_in?
+      authenticate_request unless logged_in?
     end
 
     def require_registered
-      redirect_to login_or_access_denied unless registered_user?
+      authenticate_request unless registered_user?
     end
 
     def require_group(*groups)
       in_group = false
       groups.flatten.each { |group| in_group ||= user_in_group?(group) }
-      redirect_to login_or_access_denied unless in_group
+      authenticate_request unless in_group
     end
 
     def require_id(id)
-      redirect_to login_or_access_denied unless user_has_id?(id)
+      authenticate_request unless user_has_id?(id)
     end
 
     def require_group_or_id(*groups, id)
@@ -31,14 +31,22 @@ module Shibbolite
 
     def use_attributes_if_available
       if request.env[Shibbolite.pid.to_s] and not logged_in?
-        redirect_to login_or_access_denied
+        authenticate_request
       end
     end
 
-    # a handy redirect target
-    def login_or_access_denied
+    # redirects the user to (re)authenticate with
+    # the Idp or a 403 forbidden page
+    def authenticate_request
       session[:requested_url] = request.fullpath
-      logged_in? ? shibbolite.access_denied_url : shibbolite.login_url
+
+      url = logged_in? ? shibbolite.access_denied_url : shibbolite.login_url
+
+      # redirect to the selected url
+      respond_to do |format|
+        format.html { redirect_to url }
+        format.js   { render js: "window.location.assign('#{url}');"}
+      end
     end
   end
 end

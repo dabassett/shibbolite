@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    shibbolite (0.0.1)
+    shibbolite (1.0.0)
       rails (~> 4)
 
 GEM
