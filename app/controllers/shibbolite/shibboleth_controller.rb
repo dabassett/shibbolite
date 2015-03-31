@@ -9,8 +9,18 @@ module Shibbolite
 
     def login
       session[:requested_url] ||= main_app.root_path
+      
+      # attempt to load existing sp session data
       load_session
-      redirect_to logged_in? ? session.delete(:requested_url) : sp_login_url
+
+      # redirect to Idp for authentication if
+      # sp session data is not present
+      url = (logged_in? ? session.delete(:requested_url) : sp_login_url)
+
+      respond_to do |format|
+        format.html { redirect_to url }
+        format.js   { render js: "window.location.assign('#{url}');"}
+      end
     end
 
     def logout
