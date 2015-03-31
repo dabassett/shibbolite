@@ -4,6 +4,8 @@ require 'spec_helper'
 # the Shibbolite::Helpers concern
 describe HelpersTestController do
 
+  include_context 'auth_helpers'
+
   # helper methods
   #
 
@@ -140,6 +142,21 @@ describe HelpersTestController do
 
     it 'is false when user does not have the id' do
       get :_user_has_id?, id: '23'
+      expect(assigns(:result)).to be_falsey
+    end
+  end
+
+  describe '#user_has_attribute?' do
+
+    before { set_env_attribute(:department, 'HR') }
+
+    it 'is true when the user has the attribute and value' do
+      get :_user_has_attribute?, attr: :department, value: 'HR'
+      expect(assigns(:result)).to be_truthy
+    end
+
+    it 'is false when the user doesnt have the attribute and/or value' do
+      get :_user_has_attribute?, attr: :department, value: 'QA'
       expect(assigns(:result)).to be_falsey
     end
   end

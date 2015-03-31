@@ -29,6 +29,16 @@ module Shibbolite
       end
     end
 
+    def require_attribute(attr, value)
+      authenticate_request unless user_has_matching_attribute?(attr, value)
+    end
+
+    def require_group_or_attribute(*groups, attr, value)
+      unless user_has_matching_attribute?(attr, value)
+        require_group(groups)
+      end
+    end
+
     def use_attributes_if_available
       if request.env[Shibbolite.pid.to_s] and not logged_in?
         authenticate_request

@@ -44,5 +44,11 @@ module Shibbolite
       return false unless user
       user.id == id
     end
+
+    #  this method matches against the raw environment variables
+    #  instead of the database attributes
+    def user_has_matching_attribute?(attr, value)
+      request.env[attr.to_s] == value
+    end
   end
 end

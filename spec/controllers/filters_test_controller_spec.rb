@@ -4,6 +4,8 @@ require 'spec_helper'
 
 describe FiltersTestController do
 
+  include_context 'auth_helpers'
+
   # presume the session has been loaded
   before { allow(subject).to receive(:load_session) }
 
@@ -54,7 +56,7 @@ describe FiltersTestController do
 
   describe '#use_attributes_if_available' do
 
-    context 'when the user authenticated but login isn\'t required' do
+    context 'when the user authenticated but login is not required' do
       it 'redirects to login to load the session' do
         allow(subject).to receive(:logged_in?).and_return(false)
         request.env[Shibbolite.pid.to_s] = 'not nil'
@@ -68,6 +70,26 @@ describe FiltersTestController do
         get :_use_attributes_if_available
         expect(response).to render_template(:dummy)
       end
+    end
+  end
+
+  describe '#require_attribute' do
+
+    it 'executes action when user has the attribute' do
+      set_env_attribute(:department, '9th Circle')
+      get :_require_attribute, attr: :department, value: '9th Circle'
+      expect(response).to render_template(:dummy)
+    end
+
+    it 'redirects when user does not have the attribute' do
+      get :_require_attribute, attr: :dragon, value: 'Smaug'
+      expect(response).to redirect_to('/shibbolite/login')
+    end
+
+    it 'redirects when user has an incorrect value for the attribute' do
+      set_env_attribute(:department, 'Complaints')
+      get :_require_attribute, attr: :department, value: '9th Circle'
+      expect(response).to redirect_to('/shibbolite/login')
     end
   end
 
@@ -144,6 +166,37 @@ describe FiltersTestController do
         it 'redirects' do
           allow(subject).to receive(:current_user).and_return(guest)
           get :_require_group_or_id, groups: 'user', id: user_id
+          expect(response).to redirect_to('/shibbolite/login')
+        end
+      end
+    end
+
+    describe '#require_group_or_attribute' do
+      context 'happy paths' do
+
+        it 'executes action when user has the attribute' do
+          set_env_attribute(:department, '9th Circle')
+          get :_require_group_or_attribute, groups: 'admin', attr: :department, value: '9th Circle'
+          expect(response).to render_template(:dummy)
+        end
+
+        it 'allows action with matching group' do
+          allow(subject).to receive(:current_user).and_return(admin)
+          get :_require_group_or_id, groups: 'admin', attr: :department, value: '9th Circle'
+          expect(response).to render_template(:dummy)
+        end
+
+        it 'allows action with both attribute and group matching' do
+          set_env_attribute(:department, '9th Circle')
+          allow(subject).to receive(:current_user).and_return(admin)
+          get :_require_group_or_id, groups: 'admin', attr: :department, value: '9th Circle'
+          expect(response).to render_template(:dummy)
+        end
+      end
+
+      context 'with no matching criteria' do
+        it 'redirects' do
+          get :_require_attribute, attr: :wizard, value: 'Gandalf'
           expect(response).to redirect_to('/shibbolite/login')
         end
       end

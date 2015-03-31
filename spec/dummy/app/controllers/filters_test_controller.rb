@@ -10,6 +10,8 @@ class FiltersTestController < ApplicationController
   before_action(only: :_require_id)           { |c| c.require_id params[:id].to_i }
   before_action(only: :_require_group_or_id)  { |c| c.require_group_or_id params[:groups], params[:id].to_i }
   before_action :use_attributes_if_available, only: :_use_attributes_if_available
+  before_action(only: :_require_attribute)          { |c| c.require_attribute params[:attr], params[:value] }
+  before_action(only: :_require_group_or_attribute) { |c| c.require_group_or_attribute params[:groups], params[:attr], params[:value] }
 
   def _require_login
     render :dummy
@@ -32,6 +34,14 @@ class FiltersTestController < ApplicationController
   end
 
   def _use_attributes_if_available
+    render :dummy
+  end
+
+  def _require_attribute
+    render :dummy
+  end
+
+  def _require_group_or_attribute
     render :dummy
   end
 end

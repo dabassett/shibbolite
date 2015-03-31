@@ -41,4 +41,9 @@ class HelpersTestController < ApplicationController
     @result = user_has_id?(params[:id].to_i)
     render :dummy
   end
+
+  def _user_has_attribute?
+    @result = user_has_matching_attribute?(params[:attr], params[:value])
+    render :dummy
+  end
 end
