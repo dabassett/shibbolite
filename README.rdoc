@@ -48,47 +48,45 @@ Shibbolite::Filters gives you a gaggle of before filters to enable access contro
 === Filters
   before_action :require_login
 
-In your ApplicationController will require that users have a valid Shibboleth session before they can launch any action
+...in your ApplicationController will require that users have a valid Shibboleth session before they can launch any action
 
   before_action { |c| c.require_group :admin }
 
-will require that the user belong to the admin group
+...will require that the user belong to the admin group
 
   before_action { |c| c.require_group :admin, :user }
 
-will allow anyone who has the admin or the user group
+...will allow anyone who has the admin or the user group
 
   before_action { |c| c.require_group_or_id :admin, some_user.id }
 
-is useful for things like profile pages that are accessible to both an owner and anyone in the admin group
+...is useful for things like profile pages that are accessible to both an owner and anyone in the admin group
 
   before_action :use_attributes_if_available, only: :public
 
-will attempt to load a Shibboleth session if one is available but do nothing otherwise. Use this if you have a public page but still want to make use of attributes for users that have logged in.
+...will attempt to load a Shibboleth session if one is available but do nothing otherwise. Use this if you have a public page but still want to make use of attributes for users that have logged in.
 
 === Helpers
 These helpers will be available to views of any controllers that include Shibbolite::Filters. See the source for a complete list.
 
   current_user
 
-will return the User object of the Shibboleth authenticated user or nil if no one is authenticated, or the user isn't registered in the database. NOTE: current_user can still return nil after the user authenticates if one of the above filters isn't used before the controller action.
+...will return the User object of the Shibboleth authenticated user or nil if no one is authenticated, or the user isn't registered in the database. NOTE: current_user can still return nil after the user authenticates if one of the above filters isn't used before the controller action.
 
 Since current_user relies on a database lookup, you'll have to register (ie persist) your users before they can interact with most of the features of Shibbolite. How you want to handle user registration is left up to you.
 
   logged_in?
 
-checks to see that a username is set in the session
+...checks to see that a username is set in the session
 
   user_in_group? (:admin)
 
-will return true if the current user has the admin group
-
-  
+...will return true if the current user has the admin group
 
 === Actions
 A couple of actions are available from Shibbolite::ShibbolethController
 
-  shibbolite.login_path #=> '/shibbolite/login'
+  shibbolite.login_path #=> 'shibbolite/login'
 
 will attempt to load a Shibboleth session, or redirect to the Shibbolite.session_initiator for authentication if there is none. After authentication the user is brought back to the root_path.
 
